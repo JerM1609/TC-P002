@@ -1,0 +1,6 @@
+*.exe
+*.out
+.vscode
+cmake-build-debug/
+.idea/
+*.pdf
