@@ -1,5 +1,8 @@
 #include "clases.h"
 
+
+//              AUTOMATA
+
 // AUXILIARY FUNCTIONS
 void find(State* curr_state, string& path, intArray id_)
 {
@@ -566,3 +569,151 @@ void StateArray::resize()
     this->arr = aux_arr;
 }
 
+//          GIC
+// RIGHT
+void Right::add(char el, Rule *r)
+{
+    if (this->sz == this->capacity)
+        this->resize();
+    this->right[sz] = el;
+    this->rules[sz] = r;
+    sz++;
+}
+
+void Right::resize()
+{
+    // table doubling
+    this->capacity *= 2;
+    auto aux_right = new char[this->capacity]{};
+    auto aux_rule = new Rule*[this->capacity]{};
+
+    for (int i = 0; i < this->sz; ++i)
+        aux_right[i] = this->right[i], aux_rule[i] = this->rules[i];
+
+    // release memory and reassigning
+    delete [] this->right;
+    delete [] this->rules;
+    this->right = aux_right;
+    this->rules = aux_rule;
+}
+
+void Right::show()
+{
+    if (this->sz == 0)
+    {
+        printf("[]");
+        return;
+    }
+
+    printf("[");
+    for (size_t i = 0; i < this->sz-1; i++)
+        printf("%c", this->right[i]);
+    printf("%c]", this->right[this->sz-1]);
+}
+
+bool Right::is_generator()
+{
+    int count_generators = 0;
+    for (size_t i = 0; i < this->sz; i++)
+    {
+        if (this->rules[i] != nullptr)
+        {
+            if (this->rules[i]->is_generator)
+                count_generators++;
+        }
+        else
+            count_generators++;
+    }
+    return count_generators == this->sz;
+}
+
+// RIGHT ARRAY
+void RightArray::add(Right* rr)
+{
+    if (this->sz == this->capacity)
+        this->resize();
+    this->right[this->sz++] = rr;
+}
+
+void RightArray::resize()
+{
+    this->capacity *= 2;
+    auto aux_arr = new Right*[this->capacity]{};
+    for (int i = 0; i < this->sz; ++i)
+        aux_arr[i] = this->right[i];
+
+    delete [] this->right;
+    this->right = aux_arr;
+}
+
+bool RightArray::generator()
+{
+    bool generator = false;
+    for (int i = 0; i < this->sz; ++i)
+        generator |= this->right[i]->is_generator();
+    return generator;
+}
+
+void RightArray::display()
+{
+    for (int i = 0; i < this->sz; ++i)
+        this->right[i]->show(), printf(" ");
+}
+
+// RULE
+void Rule::add(Right* rr)
+{
+    rights.add(rr);
+}
+
+void Rule::display()
+{
+    printf("%c%c -> ", this->left,
+           (this->is_generator ? '\'' : ' '));
+    this->rights.display();
+    printf("\n");
+}
+
+void Rule::update_generator()
+{
+    this->is_generator = rights.generator();
+}
+
+// GIC
+GIC::GIC(string term, string var): terminales{term}, variables{var}
+{
+    for (char v : variables)
+        this->rule_arr[int(v)-FIRST_UPPER] = new Rule(v);
+}
+
+void GIC::add_rule(char left, string right)
+{
+    Right* rr = new Right();
+    for (char c: right)
+    {
+        Rule* next = nullptr;
+        if (isupper(c))
+            next = this->rule_arr[int(c)-FIRST_UPPER];
+        rr->add(c, next);
+        // cout << "(" << c << " " << next << ") ";
+    }
+    // rr->show();
+    this->rule_arr[int(left)-FIRST_UPPER]->add(rr);
+}
+
+void GIC::show()
+{
+    for (char v : variables)
+        this->rule_arr[int(v)-FIRST_UPPER]->display();
+}
+
+bool GIC::empty_test_n2()
+{
+    for (char vv : variables)
+    {
+        for (char v : variables)
+            rule_arr[int(v) - FIRST_UPPER]->update_generator();
+    }
+    this->show();
+    return rule_arr[int(this->var_inicial) - FIRST_UPPER]->is_generator;
+}

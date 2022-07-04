@@ -1,3 +1,25 @@
+b
+SAB
+4
+S A
+S BA
+A S
+B b
+
+bdikvw
+ACFGTUVW
+10
+C ikviFTd
+W bv
+F vvdb
+U iUCWvCG
+A www
+V Awi
+G FWwb
+T vUFCv
+F vdvF
+U UUvVAU
+
 1234567890=()[]{};+-*/#abcdefghijklmnopqrstuvwxyz
 3
 return0;

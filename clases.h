@@ -4,7 +4,9 @@
 using namespace std;
 
 using time_point_t = chrono::time_point<chrono::high_resolution_clock>;
+const int FIRST_UPPER=65, UPPER_SIZE=90-65+1, FIRST_LOWER=97, LOWER_SIZE=122-97+1;
 
+// AUTOMATA
 struct Transition;
 struct State;
 struct Automata;
@@ -156,4 +158,81 @@ struct Automata
     State* get_state(intArray id);
     string DFS(intArray id);
     intArray get_by_suffix(string suffix);
+};
+
+// GIC
+struct Rule;
+struct Right;
+struct RightArray;
+struct GIC;
+
+struct Right
+{
+    /**
+     * Define the right side of rule in GIC
+     * Eg:
+     * S -> BA
+     * BA with respective pointers
+     *
+     * U -> iUCWvCG
+     * iUCWvCG with respective pointers
+    */
+    int sz=0, capacity=1;
+    char* right = new char[capacity];   // iUCWvCG
+    Rule** rules = new Rule*[capacity];
+
+    Right() = default;
+    void add(char el, Rule* r);
+    void resize();
+    void show();
+    bool is_generator();
+};
+
+struct RightArray
+{
+    /**
+     * Define all RightSide of Rule
+     * U -> iUCWvCG | UUvVAU
+    */
+    int sz=0, capacity=1;
+    Right** right = new Right*[capacity];
+
+    void add(Right* rr);
+    void resize();
+    bool generator();
+    void display();
+};
+
+struct Rule
+{
+    /**
+     * Define a set of Rules
+     * Eg:
+     * S -> BA | b
+     * U -> iUCWvCG | UUvVAU
+     */
+    char left;
+    bool is_generator = false;
+
+    RightArray rights;
+
+    Rule(char l): left{l} {}
+    void add(Right* r);
+
+    void display();
+    void update_generator();
+};
+
+struct GIC
+{
+    string terminales, variables;
+    char var_inicial;
+    Rule** rule_arr = new Rule*[UPPER_SIZE];
+
+    GIC(string term, string var);
+    void add_rule(char left, string right);
+    void show();
+
+    bool empty_test_n2();
+    bool empyt_test_n();
 };

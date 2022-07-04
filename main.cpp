@@ -1,11 +1,7 @@
 #include "clases.h"
 
-int main()
+void automatas()
 {
-#ifndef TEST
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
-#endif
     int t, q;
     string E;
 
@@ -62,8 +58,38 @@ int main()
         timer_t timer;
         AFD_AFN->test(S, q);
     }
+}
 
+void gramaticas()
+{
+    string terminales, variables;
+    char var; string rule;
+    int r;
+
+    cin >> terminales >> variables >> r;
+    GIC* gic = new GIC(terminales, variables);
+    for (int i = 0; i < r; i++)
+    {
+        cin >> var >> rule;
+        if (i == 0)
+            gic->var_inicial = var;
+        gic->add_rule(var, rule);
+    }   cout << endl;
+
+    gic->show();
     printf("\tP5\n");
+    cout << ((!gic->empty_test_n2()) ? "YES\n" : "NO\n");
     printf("\tP6\n");
+    // cout << ((gic->empty_test_n()) ? "SI\n" : "NO\n");
+}
+
+int main()
+{
+#ifndef TEST
+    freopen("input.txt", "r", stdin);
+    // freopen("output.txt", "w", stdout);
+#endif
+    // automatas();
+    gramaticas();
     return 0;
 }
