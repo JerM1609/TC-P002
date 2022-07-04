@@ -76,11 +76,24 @@ void gramaticas()
         gic->add_rule(var, rule);
     }   cout << endl;
 
-    gic->show();
+    // gic->show();
+
     printf("\tP5\n");
-    cout << ((!gic->empty_test_n2()) ? "YES\n" : "NO\n");
+    {
+        timer_t t;
+        cout << ((!gic->empty_test()) ? "YES\n" : "NO\n");
+    }
+
+    // gic->show();
+
     printf("\tP6\n");
-    // cout << ((gic->empty_test_n()) ? "SI\n" : "NO\n");
+    {
+        timer_t t;
+        // gic->map->show();
+        // gic->cq.display();
+        cout << ((!gic->empty_test_n()) ? "YES\n" : "NO\n");
+    }
+    
 }
 
 int main()

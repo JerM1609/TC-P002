@@ -165,6 +165,50 @@ struct Rule;
 struct Right;
 struct RightArray;
 struct GIC;
+struct MapRight;
+struct charSet;
+struct charQueue;
+
+struct charSet
+{
+    int sz=0, capacity=1;
+    char* arr = new char[capacity];
+    bool F_next = false;
+
+    charSet() = default;
+    void add(char el);
+    void resize();
+    void show();
+};
+
+struct charQueue
+{
+    char *array;      // for runtime resizing
+    int capacity = 2;   // for table doubling
+    int back, front;    // indirection markers
+    int size_ = 0;
+
+    charQueue()
+    {
+        this->array = new char[this->capacity];         // dynamic array in heap
+        this->front = this->back = -1;          // initialize indirection markers
+        size_ = 0;
+    };
+    ~charQueue(){ delete [] array; }
+
+    void enqueue(char data);
+    char dequeue();
+
+    bool is_full() { return size_ == capacity; }
+    bool empty(){ return (size_ == 0); }
+
+    int size(){ return size_; }
+    void resize(int new_capacity);
+
+    int next(int index){ return (index + 1) % capacity; }
+    int prev(int index){ return (index <= 0) ? capacity - 1 : index - 1; }
+    void display();
+};
 
 struct Right
 {
@@ -180,6 +224,7 @@ struct Right
     int sz=0, capacity=1;
     char* right = new char[capacity];   // iUCWvCG
     Rule** rules = new Rule*[capacity];
+    int count;
 
     Right() = default;
     void add(char el, Rule* r);
@@ -195,8 +240,9 @@ struct RightArray
      * U -> iUCWvCG | UUvVAU
     */
     int sz=0, capacity=1;
-    Right** right = new Right*[capacity];
+    Right** right = new Right*[capacity]{};
 
+    RightArray() = default;
     void add(Right* rr);
     void resize();
     bool generator();
@@ -223,16 +269,31 @@ struct Rule
     void update_generator();
 };
 
+struct MapRight
+{
+    RightArray** mapa = new RightArray*[UPPER_SIZE]{};
+    bool is_gen[UPPER_SIZE]{false};
+
+    MapRight() = default;
+    void add(char k, Right* v);
+    void update(char front);
+
+    void show();
+};
+
 struct GIC
 {
     string terminales, variables;
     char var_inicial;
     Rule** rule_arr = new Rule*[UPPER_SIZE];
+    MapRight* map = new MapRight();
+    charQueue cq;
 
     GIC(string term, string var);
     void add_rule(char left, string right);
     void show();
 
-    bool empty_test_n2();
-    bool empyt_test_n();
+    bool empty_test();
+    bool empty_test_n();
 };
+
