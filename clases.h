@@ -139,10 +139,7 @@ struct Automata
     State** Q = new State*[cap_Q]{};
     string E;
 
-    Automata(string& E_): E{E_}
-    {
-        this->Q[0] = new State(this->id_count++);
-    }
+    Automata(string& E_);
 
     void build_AFN(string*& T, int t);
     Automata* transform_AFD();

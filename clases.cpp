@@ -129,6 +129,11 @@ void State::display()
 }
 
 // AUTOMATA
+Automata::Automata(string& E_): E{E_}
+{
+    this->Q[0] = new State(this->id_count++);
+}
+
 void Automata::build_AFN(string *&T, int t)
 {
     // loop
@@ -242,7 +247,6 @@ Automata* Automata::transform_AFD_2()
     }
     
     // add transitions
-    
     for (size_t i = 0; i < AFD->sz_Q; i++)
     {   // por cada estado del nuevo AFD
         State* curr_state = AFD->Q[i];

@@ -1,3 +1,22 @@
+b
+SAB
+4
+S A
+S BA
+A S
+B b
+
+abcdefg
+QWERTY
+7
+Q cWec
+W bg
+E ff
+T gegddf
+Y Qfd
+R Wab
+T abTd
+
 qwertyuiop
 WASDIJKL
 16
@@ -18,17 +37,6 @@ K qwpuerAWD
 L qwpweqASWD
 L uiopprAWDS
 
-abcdefg
-QWERTY
-7
-Q cWec
-W bg
-E ff
-T gegddf
-Y Qfd
-R Wab
-T abTd
-
 abcdefghijklmnopqrstuvwxyz
 2
 web
@@ -37,14 +45,6 @@ ebay
 eweb
 quebay
 ffwegg
-
-b
-SAB
-4
-S A
-S BA
-A S
-B b
 
 bdikvw
 ACFGTUVW
