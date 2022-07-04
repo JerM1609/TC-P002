@@ -11,6 +11,10 @@ struct Automata;
 struct ParBFS;
 struct Queue;
 struct intArray;
+struct StateArray;
+
+void find(State* curr_state, string& path, intArray id_);
+void traverse(State* curr_state, intArray& id_, string resto);
 
 struct intArray
 {
@@ -19,16 +23,31 @@ struct intArray
     bool F_next = false;
 
     intArray() = default;
-    intArray(int v)
-    {
-        this->arr[sz++] = v;
-    }
+    intArray(int v);
     void add(int el);
     void resize();
     void show();
+    
+    intArray copy();
+    void merge(intArray other);
+    bool contain(int other);
+    
+    bool operator==(const intArray other);
+    bool operator!=(const intArray other);
 };
 
-class timer_t{
+struct StateArray
+{
+    int sz=0, capacity=1;
+    State** arr = new State*[capacity];
+
+    StateArray() = default;
+    void add(State* st);
+    void resize();
+};
+
+class timer_t
+{
     time_point_t start;
     time_point_t stop;
 public:
@@ -48,7 +67,7 @@ struct Transition
     State* next = nullptr;
 
     Transition() = default;
-    Transition(char _symbol, State* _next): symbol{_symbol}, next{_next}{}
+    Transition(char _symbol, State* _next);
     void show();
 };
 
@@ -60,27 +79,20 @@ struct State
     bool F = false;
 
     State() = default;
-    explicit State(int i, bool F_ = false) : F{F_}
-    {
-        this->id.add(i);
-    }
-
-    State(int i, int c, bool F_ = false) : cap_delta{c}
-    {
-        id.add(i);
-        delta = new Transition*[cap_delta]{};
-    }
+    State(int i, bool F_);
+    State(int i, int c, bool F_);
     State(intArray array, bool F_ = false): id{array}, F{F_}{}
 
+    
     void add_id(int new_id);
+    
     void add_transition(Transition* t);
-
-    void display();
-
     void resize_transition();
 
     intArray get_set_id(char symbol);
     bool compare_ids(intArray arr);
+
+    void display();
 };
 
 struct ParBFS
@@ -121,7 +133,7 @@ struct Queue
 
 struct Automata
 {
-    int sz_Q = 1, cap_Q = 2, id_count=0;
+    int sz_Q = 1, cap_Q = 2, id_count=1;
     State** Q = new State*[cap_Q]{};
     string E;
 
@@ -132,13 +144,16 @@ struct Automata
 
     void build_AFN(string*& T, int t);
     Automata* transform_AFD();
+    Automata* transform_AFD_2();
 
     void BFS(string s);
+    void test(string*& S, int q);
 
     void resize_Q();
     void adjacency_list();
-
-    void test(string*& S, int q);
+    
     void add_state(State* s);
     State* get_state(intArray id);
+    string DFS(intArray id);
+    intArray get_by_suffix(string suffix);
 };

@@ -1,0 +1,24 @@
+	P1
+		duration: 43800 ns
+	P2
+NO
+YES
+NO
+NO
+		duration: 12300 ns
+	P3
+		duration: 804300 ns
+NO
+YES
+NO
+NO
+		duration: 14500 ns
+	P4
+		duration: 636800 ns
+NO
+YES
+NO
+NO
+		duration: 8300 ns
+	P5
+	P6

@@ -1,11 +1,71 @@
 #include "clases.h"
 
+// AUXILIARY FUNCTIONS
+void find(State* curr_state, string& path, intArray id_)
+{
+    // curr_state->id.show();
+    if (curr_state->id == id_)
+        return;
+    if (curr_state->F)
+    {
+        path=""; 
+        return;
+    }
+    for (int i = 0; i < curr_state->sz_delta; i++)
+    {
+        Transition* curr_transition = curr_state->delta[i];
+        intArray next_id = curr_transition->next->id;
+        if (next_id != curr_state->id)
+        {
+            path += curr_transition->symbol;
+            find(curr_transition->next, path, id_);
+        }
+        // cout << path << " ";
+        if (!path.empty())
+            break;
+    }
+}
+
+void traverse(State* curr_state, intArray& id_, string resto)
+{
+    if (resto == "")
+        id_.merge(curr_state->id);
+    if (curr_state->F)
+        return;
+    for (int i = 0; i < curr_state->sz_delta; i++)
+    {
+        Transition* curr_transition = curr_state->delta[i];
+        if (curr_transition->symbol == resto[0])
+            traverse(curr_transition->next, id_, resto.substr(1, resto.size()-1));
+    }
+}
+
+// TRANSITION
+Transition::Transition(char _symbol, State* _next): symbol{_symbol}, next{_next}{}
+
 void Transition::show()
 {
-    printf("%c ", this->symbol);
-    // printf("(%c ", this->symbol);
-    // this->next->id.show();
-    // printf(") ");
+    // printf("%c ", this->symbol);
+    printf("(%c ", this->symbol);
+    this->next->id.show();
+    printf(") ");
+}
+
+// STATE
+State::State(int i, bool F_ = false) : F{F_}
+{
+    this->id.add(i);
+}
+
+State::State(int i, int c, bool F_ = false) : cap_delta{c}
+{
+    this->id.add(i);
+    delta = new Transition*[cap_delta]{};
+}
+
+void State::add_id(int new_id)
+{
+    this->id.add(new_id);
 }
 
 void State::add_transition(Transition *t)
@@ -23,11 +83,6 @@ void State::resize_transition()
         aux_delta[i] = this->delta[i];
     delete [] this->delta;
     this->delta = aux_delta;
-}
-
-void State::add_id(int new_id)
-{
-    this->id.add(new_id);
 }
 
 intArray State::get_set_id(char symbol)
@@ -64,12 +119,13 @@ bool State::compare_ids(intArray arr)
 void State::display()
 {
     this->id.show();
-    printf(" %c -> ", (this->F ? 'F' : ' '));
+    printf("%c -> ", (this->F ? '\'' : ' '));
     for (int i = 0; i < this->sz_delta; ++i)
         this->delta[i]->show();
     printf("\n");
 }
 
+// AUTOMATA
 void Automata::build_AFN(string *&T, int t)
 {
     // loop
@@ -93,31 +149,6 @@ void Automata::build_AFN(string *&T, int t)
             c_state = n_state;
         }
     }
-}
-
-void Automata::BFS(string s)
-{
-    Queue q;
-    q.enqueue(ParBFS(-1, this->Q[0]));
-    while (!q.empty())
-    {
-        ParBFS p = q.dequeue();
-        if (p.state->F)
-        {
-            printf("YES\n");
-            return;
-        }
-        int idx = p.index + 1;
-        if (idx == s.size())
-            continue;
-
-        for (int i = 0; i < p.state->sz_delta; ++i)
-        {
-            if (p.state->delta[i]->symbol == s[idx])
-                q.enqueue(ParBFS(idx, p.state->delta[i]->next));
-        }
-    }
-    printf("NO\n");
 }
 
 Automata *Automata::transform_AFD()
@@ -174,27 +205,108 @@ Automata *Automata::transform_AFD()
     return AFD;
 }
 
-State *Automata::get_state(intArray id)
+Automata* Automata::transform_AFD_2()
 {
-    for (int i = 0; i < this->sz_Q; ++i)
+    // generate new states
+    auto AFD = new Automata(this->E);
+    for (int i=0; i<this->sz_Q; ++i)
     {
-        if (this->Q[i]->compare_ids(id))
-            return this->Q[i];
+        if ( AFD->Q[0]->id != this->Q[i]->id)
+        {   // if ids are not equal
+            intArray copy_state_id;
+            copy_state_id.merge(this->Q[i]->id);
+            copy_state_id.F_next = this->Q[i]->F;
+            // auto  = this->Q[i]->id.copy();
+            
+            // añadirle los otros mediante el sufijo
+            string path = this->DFS(copy_state_id);
+            string suffix;
+
+            // buscar a donde se llega con cierto sufijo y mergear
+            for (int i = 0; i < path.size(); i++)
+            {
+                string suffix = path.substr(i, path.size()-i+1);
+                intArray suffix_id = this->get_by_suffix(suffix);
+                copy_state_id.merge(suffix_id);
+            }
+            
+            // copy_state_id.show(); 
+            // cout << boolalpha << " " << copy_state_id.F_next << endl;
+
+            auto new_state = new State(copy_state_id, copy_state_id.F_next);
+            AFD->add_state(new_state);
+        }
     }
-    return nullptr;
+    
+    // add transitions
+    
+    for (size_t i = 0; i < AFD->sz_Q; i++)
+    {   // por cada estado del nuevo AFD
+        State* curr_state = AFD->Q[i];
+
+        // se parsean los estados individualmente
+        StateArray states_of_AFN;
+        int sz_arr = curr_state->id.sz;
+        for (size_t i = 0; i < sz_arr; i++)
+        {
+            intArray id_to_search;
+            id_to_search.add(curr_state->id.arr[i]);
+
+            State* state_searched = this->get_state(id_to_search);
+            states_of_AFN.add(state_searched);
+        }
+        // curr_state->id.show(); cout << endl;
+        int sz_st_arr = states_of_AFN.sz;
+        for (size_t i = 0; i < this->E.size(); i++)
+        {
+            char curr_letter = this->E[i];
+            // cout << "curr_letter: " << curr_letter << ": ";
+            intArray id_to_add_transition;
+            for (int i = 0; i < sz_st_arr; i++)
+            {
+                intArray id_next = states_of_AFN.arr[i]->get_set_id(curr_letter);
+                id_to_add_transition.merge(id_next);
+            }
+            // id_to_add_transition.show(); cout << endl;
+            State* next_state = AFD->get_state(id_to_add_transition);
+            Transition* new_transition = new Transition(curr_letter, next_state);
+            curr_state->add_transition(new_transition);
+        }
+        
+    }
+    
+    return AFD;
+}
+
+void Automata::BFS(string s)
+{
+    Queue q;
+    q.enqueue(ParBFS(-1, this->Q[0]));
+    while (!q.empty())
+    {
+        ParBFS p = q.dequeue();
+        if (p.state->F)
+        {
+            printf("YES\n");
+            return;
+        }
+        int idx = p.index + 1;
+        if (idx == s.size())
+            continue;
+
+        for (int i = 0; i < p.state->sz_delta; ++i)
+        {
+            if (p.state->delta[i]->symbol == s[idx])
+                q.enqueue(ParBFS(idx, p.state->delta[i]->next));
+        }
+    }
+    printf("NO\n");
 }
 
 void Automata::test(string *&S, int q)
 {
     for (int i = 0; i < q; ++i)
         this->BFS(S[i]);
-}
-
-void Automata::add_state(State *s)
-{
-    if (sz_Q == cap_Q)
-        this->resize_Q();
-    this->Q[sz_Q++] = s;
 }
 
 void Automata::resize_Q()
@@ -210,9 +322,50 @@ void Automata::resize_Q()
 void Automata::adjacency_list()
 {
     for (int i = 0; i < this->sz_Q; ++i)
+    {
+        if (this->Q[i] == nullptr)
+            break;
         this->Q[i]->display();
+    }
 }
 
+void Automata::add_state(State *s)
+{
+    for (size_t i = 0; i < sz_Q; i++)
+        if (this->Q[i]->id == s->id)
+            return;
+    
+    if (sz_Q == cap_Q)
+        this->resize_Q();
+    this->Q[sz_Q++] = s;
+}
+
+State *Automata::get_state(intArray id)
+{
+    for (int i=0; i<this->sz_Q; ++i)
+    {
+        if (this->Q[i]->id == id)
+            return this->Q[i];
+    }
+    return nullptr;
+}
+
+string Automata::DFS(intArray id)
+{
+    string res="";
+    State* first_state = this->Q[0];
+    find(first_state, res, id);
+    return res;   
+}
+
+intArray Automata::get_by_suffix(string suffix)
+{
+    intArray base;
+    traverse(this->Q[0], base, suffix);
+    return base;
+}
+
+// QUEUE
 void Queue::enqueue(ParBFS data)
 {
     if (this->empty() && capacity == 0 && array == nullptr)
@@ -271,15 +424,23 @@ void Queue::resize(int new_capacity)
     this->array = new_array;
 }
 
+// INT ARRAY
+intArray::intArray(int v){
+    
+    this->arr[sz++] = v;
+}
+
 void intArray::add(int el)
 {
+    // previous resizing
     if (this->sz == this->capacity)
         this->resize();
-    // insert unique
+    // inserting (only unique values)
     for (int i = 0; i < this->sz; ++i)
         if (this->arr[i] == el)
             return;
     this->arr[sz++] = el;
+
     // sorting
     for (int i = 0; i < this->sz; ++i)
     {
@@ -300,10 +461,15 @@ void intArray::add(int el)
 
 void intArray::resize()
 {
-    this->capacity *=2;
+    // table doubling
+    this->capacity *= 2;
     auto aux_arr = new int[this->capacity]{};
+
+    // copying into new array
     for (int i = 0; i < this->sz; ++i)
         aux_arr[i] = this->arr[i];
+    
+    // release memory and reassigning
     delete [] this->arr;
     this->arr = aux_arr;
 }
@@ -312,8 +478,8 @@ void intArray::show()
 {
     if (this->sz == 0)
         printf("[]");
-    else if (this->sz == 1)
-        printf("%i", this->arr[0]);
+    // else if (this->sz == 1)
+    //     printf("%i", this->arr[0]);
     else
     {
         printf("[");
@@ -322,3 +488,81 @@ void intArray::show()
         printf("%i]", this->arr[this->sz-1]);
     }
 }
+
+intArray intArray::copy()
+{
+    intArray cp;
+    cp.sz = this->sz;
+    cp.capacity = this->capacity;
+    cp.F_next = this->F_next;
+
+    cp.arr = new int[cp.capacity];
+    for (int i = 0; i < cp.sz; i++)
+        cp.arr[i] = this->arr[i];
+    
+    return cp;
+}
+
+void intArray::merge(intArray other)
+{
+    for (int i = 0; i < other.sz; i++)
+        this->add(other.arr[i]);
+    this->F_next |= other.F_next;
+}
+
+bool intArray::contain(int other)
+{
+    for (int i = 0; i < this->sz; i++)
+        if (this->arr[i] == other)
+            return true;
+    return false;
+}
+
+bool intArray::operator==(const intArray other)
+{
+    if (this->sz == other.sz)
+    {
+        for (int i = 0; i < other.sz; i++)
+            if (this->arr[i] != other.arr[i])
+                return false;
+        return true;
+    }
+    return false;
+}
+
+bool intArray::operator!=(const intArray other)
+{
+    if (this->sz == other.sz)
+    {
+        for (int i = 0; i < other.sz; i++)
+            if (this->arr[i] != other.arr[i])
+                return true;
+        return false;
+    }
+    return true;
+}
+
+// STATE ARRAY
+
+void StateArray::add(State* st)
+{
+    if (this->sz == this->capacity)
+        this->resize();
+    this->arr[sz++] = st;
+}
+
+void StateArray::resize()
+{
+    // table doubling
+    this->capacity *= 2;
+    auto aux_arr = new State*[this->capacity]{};
+
+    // copying into new array
+    for (int i = 0; i < this->sz; ++i)
+        aux_arr[i] = this->arr[i];
+    
+    // release memory and reassigning
+    delete [] this->arr;
+    this->arr = aux_arr;
+}
+

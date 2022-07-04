@@ -1,5 +1,5 @@
 run:
-	g++ main.cpp clases.h clases.cpp -std=c++17 -o main.out
+	g++ main.cpp clases.cpp clases.h -std=c++17 -o main.out
 	./main.out
 test:
 	gcc test.c -o test.exe
