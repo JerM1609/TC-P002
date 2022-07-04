@@ -887,6 +887,8 @@ void MapRight::add(char k, Right* v)
 void MapRight::update(char front)
 {
     int idx = int(front) - FIRST_UPPER;
+    if (this->mapa[idx] == nullptr)
+        return;
     int sz = this->mapa[idx]->sz;
     for (int i = 0; i < sz; ++i)
         this->mapa[idx]->right[i]->count--;

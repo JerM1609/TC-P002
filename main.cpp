@@ -74,6 +74,11 @@ void gramaticas()
         if (i == 0)
             gic->var_inicial = var;
         gic->add_rule(var, rule);
+
+        cout << "--------------------------------\n";
+        cout << "\tinserting {" << var << ", " << rule <<"}\n";
+        gic->show();
+        cout << "--------------------------------\n";
     }   cout << endl;
 
     // gic->show();
@@ -102,7 +107,7 @@ int main()
     freopen("input.txt", "r", stdin);
     // freopen("output.txt", "w", stdout);
 #endif
-    automatas();
+    // automatas();
     gramaticas();
     return 0;
 }
