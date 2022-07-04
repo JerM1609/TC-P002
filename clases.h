@@ -266,7 +266,7 @@ struct Rule
     void add(Right* r);
 
     void display();
-    void update_generator();
+    bool update_generator();
 };
 
 struct MapRight

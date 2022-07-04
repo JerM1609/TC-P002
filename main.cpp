@@ -75,10 +75,12 @@ void gramaticas()
             gic->var_inicial = var;
         gic->add_rule(var, rule);
 
+        /*
         cout << "--------------------------------\n";
         cout << "\tinserting {" << var << ", " << rule <<"}\n";
         gic->show();
         cout << "--------------------------------\n";
+        */
     }   cout << endl;
 
     // gic->show();

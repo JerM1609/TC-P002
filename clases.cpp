@@ -801,9 +801,13 @@ void Rule::display()
     printf("\n");
 }
 
-void Rule::update_generator()
+bool Rule::update_generator()
 {
+    bool past = this->is_generator;
     this->is_generator = rights.generator();
+    if (past != this->is_generator)
+        return true;
+    return false;
 }
 
 // GIC
@@ -852,9 +856,19 @@ bool GIC::empty_test()
 {
     for (char vv : variables)
     {
+        int changes = 0;
         for (char v : variables)
-            rule_arr[int(v) - FIRST_UPPER]->update_generator();
-    }
+            changes += rule_arr[int(v) - FIRST_UPPER]->update_generator();
+        // cout << changes << " ";
+        if (changes == 0)
+            break;
+        /*else
+        {
+            cout << "-------------------\n";
+            this->show();
+            cout << "\n";
+        }*/
+    }   // cout << endl;
     // this->show();
     return rule_arr[int(this->var_inicial) - FIRST_UPPER]->is_generator;
 }
