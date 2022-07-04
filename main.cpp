@@ -102,7 +102,7 @@ int main()
     freopen("input.txt", "r", stdin);
     // freopen("output.txt", "w", stdout);
 #endif
-    // automatas();
+    automatas();
     gramaticas();
     return 0;
 }
