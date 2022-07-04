@@ -743,7 +743,7 @@ void Right::show()
 }
 
 bool Right::is_generator()
-{
+{   // uVBWj
     int count_generators = 0;
     for (size_t i = 0; i < this->sz; i++)
     {
@@ -857,7 +857,11 @@ void GIC::show()
 }
 
 bool GIC::empty_test()
-{
+{   
+    /**
+     * S -> AB | AR
+     * B ->
+    */
     for (char vv : variables)
     {
         int changes = 0;
@@ -879,13 +883,13 @@ bool GIC::empty_test()
 
 bool GIC::empty_test_n()
 {
-    // cout << "--------------------------------------------\n";
+    cout << "--------------------------------------------\n";
     while (!cq.empty())
     {
         char front = cq.dequeue();
         this->map->update(front);
-        // this->map->show();
-        // cout << "--------------------------------------------\n";
+        this->map->show();
+        cout << "--------------------------------------------\n";
     }
     // this->show();
     return rule_arr[int(this->var_inicial) - FIRST_UPPER]->is_generator;

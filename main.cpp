@@ -29,23 +29,23 @@ void automatas()
     }
     // AFN->adjacency_list();
 
-    printf("\tP2\n");
-    {
-        timer_t timer;
-        AFN->test(S, q);
-    }
+    // printf("\tP2\n");
+    // {
+    //     timer_t timer;
+    //     AFN->test(S, q);
+    // }
     
-    printf("\tP3\n");
-    Automata* AFD = nullptr;
-    {
-        timer_t timer;
-        AFD = AFN->transform_AFD();
-    }
+    // printf("\tP3\n");
+    // Automata* AFD = nullptr;
+    // {
+    //     timer_t timer;
+    //     AFD = AFN->transform_AFD();
+    // }
     // AFD->adjacency_list();
-    {
-        timer_t timer;
-        AFD->test(S, q);
-    }
+    // {
+    //     timer_t timer;
+    //     AFD->test(S, q);
+    // }
 
     printf("\tP4\n");
     Automata* AFD_AFN = nullptr;
@@ -96,8 +96,8 @@ void gramaticas()
     printf("\tP6\n");
     {
         timer_t t;
-        // gic->map->show();
-        // gic->cq.display();
+        gic->map->show();
+        gic->cq.display();
         cout << ((!gic->empty_test_n()) ? "YES\n" : "NO\n");
     }
     
